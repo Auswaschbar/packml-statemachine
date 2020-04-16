@@ -5,41 +5,41 @@ type InstantSuccessMachine struct {
 }
 
 func (machine *InstantSuccessMachine) Clearing() {
-	machine.SetState(Idle)
+	defer machine.StateCompletion()
 }
 
 func (machine *InstantSuccessMachine) Stopping() {
-	machine.SetState(Idle)
+	defer machine.StateCompletion()
 }
 
 func (machine *InstantSuccessMachine) Aborting() {
-	machine.SetState(Aborted)
+	defer machine.StateCompletion()
 }
 
 func (machine *InstantSuccessMachine) Holding() {
-	machine.SetState(Held)
+	defer machine.StateCompletion()
 }
 
 func (machine *InstantSuccessMachine) Suspending() {
-	machine.SetState(Suspended)
+	defer machine.StateCompletion()
 }
 
 func (machine *InstantSuccessMachine) Starting() {
-	machine.SetState(Execute)
+	defer machine.StateCompletion()
 }
 
 func (machine *InstantSuccessMachine) Unholding() {
-	machine.SetState(Execute)
+	defer machine.StateCompletion()
 }
 
 func (machine *InstantSuccessMachine) Unsuspending() {
-	machine.SetState(Execute)
+	defer machine.StateCompletion()
 }
 
 func (machine *InstantSuccessMachine) Resetting() {
-	machine.SetState(Idle)
+	defer machine.StateCompletion()
 }
 
 func (machine *InstantSuccessMachine) Completing() {
-	machine.SetState(Complete)
+	defer machine.StateCompletion()
 }

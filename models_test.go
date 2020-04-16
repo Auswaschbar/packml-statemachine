@@ -14,7 +14,7 @@ func TestVanilla(t *testing.T) {
 	}
 
 	err = models.Clear(&env)
-	var e *models.InvalidTransitionError
+	var e *models.InvalidCommand
 	if !errors.As(err, &e) {
 		t.Errorf("Clear(): %s\n", err)
 	}
@@ -37,7 +37,7 @@ func TestInstantSuccessMachine(t *testing.T) {
 		t.Errorf("Start(): %s\n", err)
 	}
 
-	var e *models.InvalidTransitionError
+	var e *models.InvalidCommand
 	err = models.Reset(&env)
 	if !errors.As(err, &e) {
 		t.Errorf("Reset(): %s\n", err)
