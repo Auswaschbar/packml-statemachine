@@ -33,23 +33,23 @@ const (
 
 func (state MachineState) String() string {
 	states := [...]string{
-		"Stopped",
-		"Stopping",
-		"Clearing",
-		"Resetting",
-		"Idle",
-		"Starting",
-		"Execute",
-		"Holding",
-		"Held",
-		"Unholding",
-		"Suspending",
-		"Suspended",
-		"Unsuspending",
-		"Completing",
-		"Complete",
-		"Aborting",
-		"Aborted"}
+		"STOPPED",
+		"STOPPING",
+		"CLEARING",
+		"RESETTING",
+		"IDLE",
+		"STARTING",
+		"EXECUTE",
+		"HOLDING",
+		"HELD",
+		"UNHOLDING",
+		"SUSPENDING",
+		"SUSPENDED",
+		"UNSUSPENDING",
+		"COMPLETING",
+		"COMPLETE",
+		"ABORTING",
+		"ABORTED"}
 
 	if state < Stopped || state > Aborted {
 		return "Unknown"
