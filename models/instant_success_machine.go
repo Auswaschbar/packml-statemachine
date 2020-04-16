@@ -1,40 +1,45 @@
 package models
 
 type InstantSuccessMachine struct {
-	State MachineState
+	Machine
 }
 
-func (machine *InstantSuccessMachine) StatusChanged() error {
-	if machine.State == Clearing ||
-		machine.State == Stopping {
-		machine.State = Stopped
-	}
+func (machine *InstantSuccessMachine) Clearing() {
+	machine.SetState(Idle)
+}
 
-	if machine.State == Aborting {
-		machine.State = Aborted
-	}
+func (machine *InstantSuccessMachine) Stopping() {
+	machine.SetState(Idle)
+}
 
-	if machine.State == Resetting {
-		machine.State = Idle
-	}
+func (machine *InstantSuccessMachine) Aborting() {
+	machine.SetState(Aborted)
+}
 
-	if machine.State == Holding {
-		machine.State = Held
-	}
+func (machine *InstantSuccessMachine) Holding() {
+	machine.SetState(Held)
+}
 
-	if machine.State == Suspending {
-		machine.State = Suspended
-	}
+func (machine *InstantSuccessMachine) Suspending() {
+	machine.SetState(Suspended)
+}
 
-	if machine.State == Starting ||
-		machine.State == Unholding ||
-		machine.State == Suspending {
-		machine.State = Execute
-	}
+func (machine *InstantSuccessMachine) Starting() {
+	machine.SetState(Execute)
+}
 
-	if machine.State == Completing {
-		machine.State = Complete
-	}
+func (machine *InstantSuccessMachine) Unholding() {
+	machine.SetState(Execute)
+}
 
-	return nil
+func (machine *InstantSuccessMachine) Unsuspending() {
+	machine.SetState(Execute)
+}
+
+func (machine *InstantSuccessMachine) Resetting() {
+	machine.SetState(Idle)
+}
+
+func (machine *InstantSuccessMachine) Completing() {
+	machine.SetState(Complete)
 }

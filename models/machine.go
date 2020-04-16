@@ -59,25 +59,57 @@ func (state MachineState) String() string {
 	return states[state]
 }
 
+type PackMLActor interface {
+	Resetting()
+	Starting()
+	Holding()
+	Unholding()
+	Suspending()
+	Unsuspending()
+	Completing()
+	Aborting()
+	Clearing()
+	Stopping()
+}
+
+type PackMLStateMachine interface {
+	GetState() MachineState
+	SetState(MachineState)
+}
+
 type PackMLMachine interface {
-	Abort() error
-	Clear() error
-	Reset() error
-	Stop() error
-	Start() error
-
-	Hold() error
-	Unhold() error
-
-	Suspend() error
-	Unsuspend() error
-
-	StatusChanged() error
+	PackMLActor
+	PackMLStateMachine
 }
 
 type Machine struct {
-	State MachineState
+	state MachineState
 }
+
+func (machine *Machine) GetState() MachineState {
+	return machine.state
+}
+
+func (machine *Machine) SetState(new_state MachineState) {
+	machine.state = new_state
+}
+
+func NewMachine() Machine {
+	something := Machine{}
+	something.state = Stopped
+	return something
+}
+
+func (machine *Machine) Resetting()    {}
+func (machine *Machine) Starting()     {}
+func (machine *Machine) Holding()      {}
+func (machine *Machine) Unholding()    {}
+func (machine *Machine) Suspending()   {}
+func (machine *Machine) Unsuspending() {}
+func (machine *Machine) Completing()   {}
+func (machine *Machine) Aborting()     {}
+func (machine *Machine) Clearing()     {}
+func (machine *Machine) Stopping()     {}
 
 type InvalidTransitionError struct {
 	CurrentState MachineState
@@ -88,84 +120,90 @@ func (e *InvalidTransitionError) Error() string {
 	return fmt.Sprintf("Cannot run %s in state %s", e.Command, +e.CurrentState)
 }
 
-func (machine *Machine) Abort() error {
-	if machine.State == Aborting || machine.State == Aborted {
-		return &InvalidTransitionError{machine.State, "Abort"}
+func Abort(machine PackMLMachine) error {
+	if machine.GetState() == Aborting || machine.GetState() == Aborted {
+		return &InvalidTransitionError{machine.GetState(), "Abort"}
 	}
 
-	machine.State = Aborting
-	return machine.StatusChanged()
-}
-
-func (machine *Machine) Clear() error {
-	if machine.State != Aborted {
-		return &InvalidTransitionError{machine.State, "Clear"}
-	}
-	machine.State = Clearing
+	machine.SetState(Aborting)
+	machine.Aborting()
 	return nil
 }
 
-func (machine *Machine) Reset() error {
-	if machine.State != Complete || machine.State != Stopped {
-		return &InvalidTransitionError{machine.State, "Reset"}
+func Clear(machine PackMLMachine) error {
+	if machine.GetState() != Aborted {
+		return &InvalidTransitionError{machine.GetState(), "Clear"}
 	}
-	machine.State = Resetting
-	return machine.StatusChanged()
+	machine.SetState(Clearing)
+	machine.Clearing()
+	return nil
 }
 
-func (machine *Machine) Stop() error {
-	if machine.State == Aborting ||
-		machine.State == Aborted ||
-		machine.State == Clearing ||
-		machine.State == Stopping ||
-		machine.State == Stopped {
-		return &InvalidTransitionError{machine.State, "Stop"}
+func Reset(machine PackMLMachine) error {
+	if machine.GetState() != Complete &&
+		machine.GetState() != Stopped {
+		return &InvalidTransitionError{machine.GetState(), "Reset"}
 	}
-
-	machine.State = Stopping
-	return machine.StatusChanged()
+	machine.SetState(Resetting)
+	machine.Resetting()
+	return nil
 }
 
-func (machine *Machine) Start() error {
-	if machine.State != Idle {
-		return &InvalidTransitionError{machine.State, "Start"}
+func Stop(machine PackMLMachine) error {
+	if machine.GetState() == Aborting ||
+		machine.GetState() == Aborted ||
+		machine.GetState() == Clearing ||
+		machine.GetState() == Stopping ||
+		machine.GetState() == Stopped {
+		return &InvalidTransitionError{machine.GetState(), "Stop"}
 	}
-	machine.State = Starting
-	return machine.StatusChanged()
+
+	machine.SetState(Stopping)
+	machine.Stopping()
+	return nil
 }
 
-func (machine *Machine) Hold() error {
-	if machine.State != Execute {
-		return &InvalidTransitionError{machine.State, "Hold"}
+func Start(machine PackMLMachine) error {
+	if machine.GetState() != Idle {
+		return &InvalidTransitionError{machine.GetState(), "Start"}
 	}
-	machine.State = Holding
-	return machine.StatusChanged()
+	machine.SetState(Starting)
+	machine.Starting()
+	return nil
 }
 
-func (machine *Machine) Unhold() error {
-	if machine.State != Held {
-		return &InvalidTransitionError{machine.State, "Unhold"}
+func Hold(machine PackMLMachine) error {
+	if machine.GetState() != Execute {
+		return &InvalidTransitionError{machine.GetState(), "Hold"}
 	}
-	machine.State = Unholding
-	return machine.StatusChanged()
+	machine.SetState(Holding)
+	machine.Holding()
+	return nil
 }
 
-func (machine *Machine) Suspend() error {
-	if machine.State != Execute {
-		return &InvalidTransitionError{machine.State, "Suspend"}
+func Unhold(machine PackMLMachine) error {
+	if machine.GetState() != Held {
+		return &InvalidTransitionError{machine.GetState(), "Unhold"}
 	}
-	machine.State = Suspending
-	return machine.StatusChanged()
+	machine.SetState(Unholding)
+	machine.Unholding()
+	return nil
 }
 
-func (machine *Machine) Unsuspend() error {
-	if machine.State != Suspended {
-		return &InvalidTransitionError{machine.State, "Unsuspend"}
+func Suspend(machine PackMLMachine) error {
+	if machine.GetState() != Execute {
+		return &InvalidTransitionError{machine.GetState(), "Suspend"}
 	}
-	machine.State = Unsuspending
-	return machine.StatusChanged()
+	machine.SetState(Suspending)
+	machine.Suspending()
+	return nil
 }
 
-func (machine *Machine) StatusChanged() error {
+func Unsuspend(machine PackMLMachine) error {
+	if machine.GetState() != Suspended {
+		return &InvalidTransitionError{machine.GetState(), "Unsuspend"}
+	}
+	machine.SetState(Unsuspending)
+	machine.Unsuspending()
 	return nil
 }
