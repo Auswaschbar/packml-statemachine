@@ -2,6 +2,7 @@ package models
 
 import "fmt"
 
+// Abort a machine
 func Abort(machine PackMLMachine) error {
 	if machine.GetState() == Aborting || machine.GetState() == Aborted {
 		return &InvalidCommand{machine.GetState(), "Abort"}
@@ -12,6 +13,8 @@ func Abort(machine PackMLMachine) error {
 	return nil
 }
 
+// Clear a machine
+// Must be in Aborted state
 func Clear(machine PackMLMachine) error {
 	if machine.GetState() != Aborted {
 		return &InvalidCommand{machine.GetState(), "Clear"}
@@ -21,6 +24,8 @@ func Clear(machine PackMLMachine) error {
 	return nil
 }
 
+// Reset a machine
+// Must be in Completed or Stopped state
 func Reset(machine PackMLMachine) error {
 	if machine.GetState() != Complete &&
 		machine.GetState() != Stopped {
@@ -31,6 +36,8 @@ func Reset(machine PackMLMachine) error {
 	return nil
 }
 
+// Stop a machine
+// Machine must be running
 func Stop(machine PackMLMachine) error {
 	if machine.GetState() == Aborting ||
 		machine.GetState() == Aborted ||
@@ -45,6 +52,8 @@ func Stop(machine PackMLMachine) error {
 	return nil
 }
 
+// Start a machine
+// Machine must be in Idle state
 func Start(machine PackMLMachine) error {
 	if machine.GetState() != Idle {
 		return &InvalidCommand{machine.GetState(), "Start"}
@@ -54,6 +63,8 @@ func Start(machine PackMLMachine) error {
 	return nil
 }
 
+// Hold a machine
+// Machine must be in Execute state
 func Hold(machine PackMLMachine) error {
 	if machine.GetState() != Execute {
 		return &InvalidCommand{machine.GetState(), "Hold"}
@@ -63,6 +74,8 @@ func Hold(machine PackMLMachine) error {
 	return nil
 }
 
+// Unhold a machine
+// Machine must be in Holding state
 func Unhold(machine PackMLMachine) error {
 	if machine.GetState() != Held {
 		return &InvalidCommand{machine.GetState(), "Unhold"}
@@ -72,6 +85,8 @@ func Unhold(machine PackMLMachine) error {
 	return nil
 }
 
+// Suspend a machine
+// Machine must be in Execute state
 func Suspend(machine PackMLMachine) error {
 	if machine.GetState() != Execute {
 		return &InvalidCommand{machine.GetState(), "Suspend"}
@@ -81,6 +96,8 @@ func Suspend(machine PackMLMachine) error {
 	return nil
 }
 
+// Unsuspend a machine
+// Machine must be in Suspended state
 func Unsuspend(machine PackMLMachine) error {
 	if machine.GetState() != Suspended {
 		return &InvalidCommand{machine.GetState(), "Unsuspend"}
@@ -90,6 +107,7 @@ func Unsuspend(machine PackMLMachine) error {
 	return nil
 }
 
+// Error that is thrown when the issued command is invalid for the current machine state
 type InvalidCommand struct {
 	CurrentState MachineState
 	Command      string

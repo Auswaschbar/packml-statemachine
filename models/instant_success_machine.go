@@ -1,5 +1,8 @@
 package models
 
+// An instant success machine for testing purposes
+// This machine instantly finishes all acting states,
+// and immediately enters the next waiting state
 type InstantSuccessMachine struct {
 	Machine
 }

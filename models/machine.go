@@ -53,12 +53,12 @@ func (state MachineState) String() string {
 
 	if state < Stopped || state > Aborted {
 		return "Unknown"
-	} // return the name of a Weekday
-	// constant from the names array
-	// above.
+	}
 	return states[state]
 }
 
+// Interface for acting states
+// Implement this to execute something when the machine switches its state
 type PackMLActor interface {
 	Resetting()
 	Starting()
@@ -77,9 +77,13 @@ type PackMLStateMachine interface {
 	GetState() MachineState
 	SetState(MachineState)
 
+	// Check whether the machine is currently in a waiting state
 	IsWaiting() bool
+
+	// Check whether the machine is currently in an acting state
 	IsActing() bool
 
+	// finish the current acting state, and enter the following wait state
 	StateCompletion() error
 }
 
@@ -150,6 +154,7 @@ func (machine *Machine) StateCompletion() error {
 	}
 	return nil
 }
+
 func NewMachine() Machine {
 	something := Machine{}
 	something.state = Stopped
